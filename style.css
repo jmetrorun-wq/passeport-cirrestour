@@ -1,0 +1,335 @@
+:root {
+  --vert: #7c9473;
+  --vert-fonce: #5c7154;
+  --or: #e8b84b;
+  --or-fonce: #c99a2e;
+  --creme: #f7f5ef;
+  --creme-carte: #ffffff;
+  --texte: #3a3a30;
+  --texte-clair: #6f6f60;
+  --ombre: rgba(60, 55, 40, 0.12);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--creme);
+  color: var(--texte);
+  min-height: 100vh;
+}
+
+.hidden { display: none !important; }
+
+/* ---------- Onboarding ---------- */
+#onboarding {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  text-align: center;
+  gap: 8px;
+}
+
+#onboarding .logo {
+  width: min(260px, 70vw);
+  margin-bottom: 8px;
+}
+
+#onboarding h1 {
+  font-size: 1.5rem;
+  margin: 4px 0;
+  color: var(--vert-fonce);
+}
+
+.subtitle {
+  color: var(--texte-clair);
+  max-width: 320px;
+  margin: 0 0 20px;
+}
+
+#form-prenom {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+}
+
+#form-prenom label {
+  text-align: left;
+  font-size: 0.85rem;
+  color: var(--texte-clair);
+}
+
+#form-prenom input {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 2px solid #e2ddcc;
+  font-size: 1rem;
+  background: var(--creme-carte);
+}
+
+#form-prenom input:focus {
+  outline: none;
+  border-color: var(--vert);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+}
+
+#form-prenom button,
+.btn-revoir,
+#btn-fermer-celebration {
+  background: var(--vert);
+  color: #fff;
+  padding: 14px 20px;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 4px 10px var(--ombre);
+  transition: transform 0.1s ease;
+}
+
+#form-prenom button:active,
+.btn-revoir:active,
+#btn-fermer-celebration:active {
+  transform: scale(0.97);
+}
+
+/* ---------- App ---------- */
+#app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.logo-small {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+
+.header-text h1 {
+  font-size: 1.1rem;
+  margin: 0;
+  color: var(--vert-fonce);
+}
+
+.header-sub {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: var(--or-fonce);
+  font-weight: 600;
+}
+
+.progress-wrap {
+  margin-bottom: 18px;
+}
+
+.progress-bar {
+  background: #e9e4d4;
+  border-radius: 20px;
+  height: 14px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--vert), var(--or));
+  border-radius: 20px;
+  transition: width 0.4s ease;
+}
+
+.progress-label {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  color: var(--texte-clair);
+  text-align: right;
+}
+
+.btn-revoir {
+  display: block;
+  width: 100%;
+  margin-bottom: 16px;
+  background: var(--or);
+  color: var(--texte);
+}
+
+/* ---------- Liste des défis ---------- */
+.liste-defis {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.defi-carte {
+  background: var(--creme-carte);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 2px 8px var(--ombre);
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.defi-carte.done {
+  border-color: var(--vert);
+  opacity: 0.85;
+}
+
+.defi-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.defi-icone {
+  font-size: 1.6rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--creme);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.defi-texte { flex: 1; min-width: 0; }
+
+.defi-titre {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 600;
+}
+
+.defi-desc {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: var(--texte-clair);
+}
+
+.defi-check {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid #d8d2bd;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.defi-carte.done .defi-check {
+  background: var(--vert);
+  border-color: var(--vert);
+  color: #fff;
+}
+
+.defi-note {
+  margin-top: 10px;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #e2ddcc;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  resize: none;
+  background: var(--creme);
+}
+
+.defi-photo-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 2px dashed #cfc9b5;
+  background: transparent;
+  color: var(--texte-clair);
+  font-size: 0.85rem;
+}
+
+.defi-photo-preview {
+  margin-top: 10px;
+  width: 100%;
+  border-radius: 12px;
+  display: block;
+  object-fit: cover;
+  max-height: 220px;
+}
+
+.app-footer {
+  margin-top: 28px;
+  text-align: center;
+}
+
+.btn-reset {
+  background: none;
+  color: var(--texte-clair);
+  font-size: 0.8rem;
+  text-decoration: underline;
+  padding: 8px;
+}
+
+/* ---------- Célébration ---------- */
+.celebration {
+  position: fixed;
+  inset: 0;
+  background: var(--vert-fonce);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#fireworks-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.celebration-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: #fff;
+  padding: 24px;
+  max-width: 360px;
+}
+
+.celebration-content h1 {
+  font-size: 1.6rem;
+  margin-bottom: 12px;
+}
+
+.celebration-sub {
+  color: var(--or);
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+#btn-fermer-celebration {
+  background: var(--or);
+  color: var(--texte);
+}

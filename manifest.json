@@ -1,0 +1,15 @@
+{
+  "name": "Passeport Cirres'Tour à Mafate",
+  "short_name": "Cirres'Tour",
+  "description": "Passeport de défis pour la randonnée Cirres'Tour à Mafate",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f5ef",
+  "theme_color": "#7c9473",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
