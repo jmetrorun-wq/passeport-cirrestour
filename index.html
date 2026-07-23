@@ -12,6 +12,22 @@
 </head>
 <body>
 
+<!-- Badge d'installation PWA -->
+<button id="btn-install" class="btn-install hidden">📲 Installer l'app</button>
+
+<!-- Instructions d'installation (iOS / navigateurs sans invite native) -->
+<div id="install-instructions" class="install-instructions hidden">
+  <div class="install-instructions-box">
+    <p><strong>Pour installer l'app sur l'écran d'accueil :</strong></p>
+    <ol>
+      <li>Appuie sur l'icône <strong>Partager</strong> ⬆️ (en bas ou en haut de ton navigateur)</li>
+      <li>Choisis <strong>« Sur l'écran d'accueil »</strong></li>
+      <li>Confirme avec <strong>Ajouter</strong></li>
+    </ol>
+    <button id="btn-fermer-install-instructions">J'ai compris</button>
+  </div>
+</div>
+
 <!-- Écran d'accueil : demande du prénom -->
 <section id="onboarding" class="screen">
   <img class="logo" src="assets/logo.png" alt="Le Cirres'tour à Mafate">

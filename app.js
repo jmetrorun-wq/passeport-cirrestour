@@ -334,5 +334,50 @@
     });
   }
 
+  // ---------- Badge d'installation PWA ----------
+  const btnInstall = document.getElementById("btn-install");
+  const installInstructions = document.getElementById("install-instructions");
+  const btnFermerInstallInstructions = document.getElementById("btn-fermer-install-instructions");
+
+  const estInstallee =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+  const estIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+  let promptInstallDiffere = null;
+
+  if (!estInstallee) {
+    if (estIOS) {
+      btnInstall.classList.remove("hidden");
+    } else {
+      window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        promptInstallDiffere = e;
+        btnInstall.classList.remove("hidden");
+      });
+    }
+  }
+
+  btnInstall.addEventListener("click", async () => {
+    if (promptInstallDiffere) {
+      promptInstallDiffere.prompt();
+      await promptInstallDiffere.userChoice;
+      promptInstallDiffere = null;
+      btnInstall.classList.add("hidden");
+    } else {
+      installInstructions.classList.remove("hidden");
+    }
+  });
+
+  btnFermerInstallInstructions.addEventListener("click", () => {
+    installInstructions.classList.add("hidden");
+  });
+
+  window.addEventListener("appinstalled", () => {
+    btnInstall.classList.add("hidden");
+    installInstructions.classList.add("hidden");
+  });
+
   demarrer();
 })();
