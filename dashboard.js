@@ -1,6 +1,7 @@
 // Vue "organisateur" cachée : activée via ?organisateur=CODE, persistée en localStorage.
 // Aucune UI visible pour les participants normaux.
 import { db, authReady } from "./firebase-init.js";
+import { estOrganisateur } from "./organisateur.js";
 import {
   collection,
   onSnapshot,
@@ -8,18 +9,7 @@ import {
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const CODE_ORGANISATEUR = "MAFATE2026"; // à personnaliser
-const FLAG_KEY = "cirrestour_organisateur_ok";
-
-const params = new URLSearchParams(location.search);
-if (params.get("organisateur") === CODE_ORGANISATEUR) {
-  localStorage.setItem(FLAG_KEY, "1");
-  params.delete("organisateur");
-  const reste = params.toString();
-  history.replaceState(null, "", location.pathname + (reste ? "?" + reste : ""));
-}
-
-const estOrganisateur = localStorage.getItem(FLAG_KEY) === "1";
+const TOTAL_DEFIS_PAR_DEFAUT = 10; // repli si config/defis n'a jamais été publié
 
 if (estOrganisateur) {
   const btnToggle = document.getElementById("btn-dashboard-toggle");
@@ -32,6 +22,7 @@ if (estOrganisateur) {
   btnToggle.classList.remove("hidden");
   let abonne = false;
   let dernierParticipants = [];
+  let totalDefis = TOTAL_DEFIS_PAR_DEFAUT;
 
   btnToggle.addEventListener("click", () => {
     document.querySelectorAll(".screen").forEach((s) => s.classList.add("hidden"));
@@ -60,6 +51,12 @@ if (estOrganisateur) {
 
   function demarrerEcoute() {
     authReady.then(() => {
+      onSnapshot(doc(db, "config", "defis"), (snap) => {
+        if (snap.exists() && Array.isArray(snap.data().liste) && snap.data().liste.length) {
+          totalDefis = snap.data().liste.length;
+        }
+        rendre(dernierParticipants);
+      });
       onSnapshot(
         collection(db, "participants"),
         (snap) => {
@@ -87,13 +84,13 @@ if (estOrganisateur) {
     listeDashboard.innerHTML = "";
     participants.forEach((p) => {
       const n = compte(p);
-      const pct = Math.round((n / 10) * 100);
+      const pct = totalDefis ? Math.round((n / totalDefis) * 100) : 0;
       const li = document.createElement("li");
-      li.className = "dashboard-carte" + (n === 10 ? " complet" : "");
+      li.className = "dashboard-carte" + (totalDefis > 0 && n === totalDefis ? " complet" : "");
       li.innerHTML = `
         <div class="dashboard-ligne">
           <span class="dashboard-nom">${escapeHtml(p.prenom || "(sans nom)")}</span>
-          <span class="dashboard-score">${n} / 10</span>
+          <span class="dashboard-score">${n} / ${totalDefis}</span>
         </div>
         <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>`;
       listeDashboard.appendChild(li);

@@ -1,12 +1,15 @@
-const CACHE_NAME = "cirrestour-v4";
+const CACHE_NAME = "cirrestour-v5";
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./app.js",
   "./firebase-init.js",
+  "./organisateur.js",
   "./sync.js",
+  "./defis-sync.js",
   "./dashboard.js",
+  "./defis-editor.js",
   "./manifest.json",
   "./assets/logo.png",
   "./icons/icon-192.png",

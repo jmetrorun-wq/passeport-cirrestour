@@ -6,7 +6,8 @@
   const PHOTO_QUALITY = 0.72;
   window.CIRRESTOUR_STORAGE_KEY = STORAGE_KEY;
 
-  const DEFIS = [
+  // Jeu de défis bundlé, utilisé tant qu'aucune config organisateur n'a été reçue.
+  const DEFIS_DEFAUT = [
     { id: "papangue", titre: "Photo d'un papangue", desc: "Immortalise ce rapace emblématique de Mafate", type: "photo", icone: "🦅" },
     { id: "compliment", titre: "Un compliment offert", desc: "Fais un compliment sincère à quelqu'un", type: "note", icone: "💬" },
     { id: "encourager", titre: "Encourager un·e collègue", desc: "Un mot qui redonne des jambes dans la montée", type: "note", icone: "📣" },
@@ -18,6 +19,26 @@
     { id: "secret", titre: "Un secret dévoilé", desc: "Apprends une info perso sur un·e collègue", type: "note", icone: "🕵️" },
     { id: "esprit-equipe", titre: "Esprit d'équipe", desc: "Photo/selfie qui représente le groupe", type: "photo", icone: "🌟" }
   ];
+  window.CIRRESTOUR_DEFIS_DEFAUT = DEFIS_DEFAUT;
+
+  const DEFIS_CONFIG_KEY = "cirrestour_defis_config_v1";
+  window.CIRRESTOUR_DEFIS_CONFIG_KEY = DEFIS_CONFIG_KEY;
+
+  function chargerDefisLocal() {
+    try {
+      const brut = localStorage.getItem(DEFIS_CONFIG_KEY);
+      if (!brut) return null;
+      const p = JSON.parse(brut);
+      if (!p || !Array.isArray(p.liste) || !p.liste.length) return null;
+      return p;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  const defisConfigCache = chargerDefisLocal();
+  let DEFIS = (defisConfigCache && defisConfigCache.liste) || DEFIS_DEFAUT.slice();
+  let defisVersion = (defisConfigCache && defisConfigCache.version) || 0;
 
   // ---------- État ----------
   function etatParDefaut() {
@@ -63,9 +84,39 @@
     }));
   }
 
+  // Applique une nouvelle config de défis reçue de defis-sync.js (organisateur -> téléphone).
+  // Préserve toujours la progression déjà cochée pour les défis dont l'id existe encore.
+  function appliquerConfigDefis(nouvelleListe, version) {
+    if (!Array.isArray(nouvelleListe) || !nouvelleListe.length) return;
+    if (version <= defisVersion) return;
+
+    const ancien = state.defis;
+    DEFIS = nouvelleListe;
+    defisVersion = version;
+
+    const nouveauxDefis = {};
+    DEFIS.forEach((d) => {
+      nouveauxDefis[d.id] = ancien[d.id] || { done: false, note: "", photo: null };
+    });
+    state.defis = nouveauxDefis;
+    sauvegarder();
+    majTextesStatiques();
+
+    if (!elApp.classList.contains("hidden")) {
+      renderListe();
+      renderProgress();
+    }
+  }
+
+  window.addEventListener("cirrestour:defis-config", (e) => {
+    appliquerConfigDefis(e.detail.liste, e.detail.version);
+  });
+
   // ---------- Éléments DOM ----------
   const elOnboarding = document.getElementById("onboarding");
   const elApp = document.getElementById("app");
+  const elOnboardingSubtitle = document.getElementById("onboarding-subtitle");
+  const elCelebrationText = document.getElementById("celebration-text");
   const formPrenom = document.getElementById("form-prenom");
   const inputPrenom = document.getElementById("prenom");
   const prenomAffiche = document.getElementById("prenom-affiche");
@@ -76,6 +127,11 @@
   const btnRevoir = document.getElementById("btn-revoir");
   const btnReset = document.getElementById("btn-reset");
   const elCelebration = document.getElementById("celebration");
+
+  function majTextesStatiques() {
+    elOnboardingSubtitle.textContent = `${DEFIS.length} défis t'attendent tout au long du parcours. Coche-les au fur et à mesure !`;
+    elCelebrationText.textContent = `Tu as relevé les ${DEFIS.length} défis du Cirres'Tour à Mafate.`;
+  }
   const btnFermerCelebration = document.getElementById("btn-fermer-celebration");
   const photoInput = document.getElementById("photo-input");
 
@@ -397,5 +453,6 @@
 
   window.addEventListener("cirrestour:retour-app", demarrer);
 
+  majTextesStatiques();
   demarrer();
 })();

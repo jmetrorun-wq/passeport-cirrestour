@@ -32,7 +32,7 @@
 <section id="onboarding" class="screen">
   <img class="logo" src="assets/logo.png" alt="Le Cirres'tour à Mafate">
   <h1>Ton passeport de rando</h1>
-  <p class="subtitle">10 défis t'attendent tout au long du parcours. Coche-les au fur et à mesure !</p>
+  <p id="onboarding-subtitle" class="subtitle">10 défis t'attendent tout au long du parcours. Coche-les au fur et à mesure !</p>
   <form id="form-prenom">
     <label for="prenom">Ton prénom</label>
     <input type="text" id="prenom" name="prenom" placeholder="Ex : Julie" autocomplete="given-name" required maxlength="30">
@@ -74,14 +74,17 @@
   <canvas id="fireworks-canvas"></canvas>
   <div class="celebration-content">
     <h1>🎉 Bravo <span id="prenom-final"></span> ! 🎉</h1>
-    <p>Tu as relevé les 10 défis du Cirres'Tour à Mafate.</p>
+    <p id="celebration-text">Tu as relevé les 10 défis du Cirres'Tour à Mafate.</p>
     <p class="celebration-sub">Passeport complet — vrai(e) Cirres'Touriste !</p>
     <button id="btn-fermer-celebration">Voir mon récap</button>
   </div>
 </section>
 
 <!-- Vue organisateur (masquée, activée via ?organisateur=CODE) -->
-<button id="btn-dashboard-toggle" class="btn-dashboard-toggle hidden">📊 Suivi</button>
+<div class="organisateur-barre">
+  <button id="btn-dashboard-toggle" class="btn-organisateur-toggle hidden">📊 Suivi</button>
+  <button id="btn-editor-toggle" class="btn-organisateur-toggle hidden">🛠️ Défis</button>
+</div>
 
 <section id="dashboard" class="screen hidden">
   <header class="app-header">
@@ -98,9 +101,30 @@
   </footer>
 </section>
 
+<!-- Éditeur de défis organisateur -->
+<section id="defis-editor" class="screen hidden">
+  <header class="app-header">
+    <div class="header-text">
+      <h1>Éditeur des défis</h1>
+      <p class="header-sub">Le Cirres'tour à Mafate</p>
+    </div>
+  </header>
+  <p id="editor-status" class="progress-label">Chargement...</p>
+  <ul id="editor-liste" class="editor-liste"></ul>
+  <button id="btn-editor-ajouter" class="btn-revoir">+ Ajouter un défi</button>
+  <footer class="app-footer">
+    <button id="btn-editor-annuler" class="btn-reset">Annuler / recharger la version actuelle</button>
+    <button id="btn-editor-sauvegarder" class="btn-reset">💾 Sauvegarder pour tous</button>
+    <button id="btn-fermer-editor" class="btn-reset">Fermer</button>
+  </footer>
+</section>
+
 <script src="app.js"></script>
 <script type="module" src="firebase-init.js"></script>
+<script type="module" src="organisateur.js"></script>
 <script type="module" src="sync.js"></script>
+<script type="module" src="defis-sync.js"></script>
 <script type="module" src="dashboard.js"></script>
+<script type="module" src="defis-editor.js"></script>
 </body>
 </html>

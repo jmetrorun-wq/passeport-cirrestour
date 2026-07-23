@@ -393,12 +393,17 @@ button {
   color: var(--texte);
 }
 
-/* ---------- Tableau de bord organisateur ---------- */
-.btn-dashboard-toggle {
+/* ---------- Barre organisateur (dashboard + éditeur de défis) ---------- */
+.organisateur-barre {
   position: fixed;
   top: max(12px, env(safe-area-inset-top));
   left: 12px;
   z-index: 30;
+  display: flex;
+  gap: 8px;
+}
+
+.btn-organisateur-toggle {
   background: var(--vert-fonce);
   color: #fff;
   font-size: 0.82rem;
@@ -408,7 +413,7 @@ button {
   box-shadow: 0 3px 10px var(--ombre);
 }
 
-.btn-dashboard-toggle:active {
+.btn-organisateur-toggle:active {
   transform: scale(0.96);
 }
 
@@ -448,4 +453,88 @@ button {
 
 .dashboard-score {
   color: var(--vert-fonce);
+}
+
+/* ---------- Éditeur de défis organisateur ---------- */
+#defis-editor {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+}
+
+.editor-liste {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.editor-carte {
+  background: var(--creme-carte);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 2px 8px var(--ombre);
+}
+
+.editor-ligne1 {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.editor-icone {
+  width: 54px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.editor-titre {
+  flex: 1;
+  min-width: 0;
+}
+
+.editor-desc,
+.editor-icone,
+.editor-titre,
+.editor-type {
+  border-radius: 10px;
+  border: 1px solid #e2ddcc;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  background: var(--creme);
+  color: var(--texte);
+}
+
+.editor-desc {
+  width: 100%;
+  resize: none;
+}
+
+.editor-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  gap: 8px;
+}
+
+.editor-actions button {
+  background: var(--creme);
+  border: 1px solid #e2ddcc;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+}
+
+.editor-actions button:disabled {
+  opacity: 0.35;
+}
+
+.editor-id {
+  margin: 8px 0 0;
+  font-size: 0.7rem;
+  color: var(--texte-clair);
 }
