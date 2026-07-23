@@ -3,7 +3,9 @@
 import { db, authReady } from "./firebase-init.js";
 import {
   collection,
-  onSnapshot
+  onSnapshot,
+  doc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const CODE_ORGANISATEUR = "MAFATE2026"; // à personnaliser
@@ -25,9 +27,11 @@ if (estOrganisateur) {
   const listeDashboard = document.getElementById("dashboard-liste");
   const dashboardStatus = document.getElementById("dashboard-status");
   const btnFermer = document.getElementById("btn-fermer-dashboard");
+  const btnResetTous = document.getElementById("btn-reset-tous");
 
   btnToggle.classList.remove("hidden");
   let abonne = false;
+  let dernierParticipants = [];
 
   btnToggle.addEventListener("click", () => {
     document.querySelectorAll(".screen").forEach((s) => s.classList.add("hidden"));
@@ -38,6 +42,20 @@ if (estOrganisateur) {
   btnFermer.addEventListener("click", () => {
     elDashboard.classList.add("hidden");
     window.dispatchEvent(new CustomEvent("cirrestour:retour-app"));
+  });
+
+  btnResetTous.addEventListener("click", async () => {
+    if (!dernierParticipants.length) return;
+    const ok = confirm(`Supprimer les ${dernierParticipants.length} participant(s) de Firestore ? (n'efface pas leur passeport local sur leur téléphone)`);
+    if (!ok) return;
+    btnResetTous.disabled = true;
+    try {
+      await Promise.all(dernierParticipants.map((p) => deleteDoc(doc(db, "participants", p.id))));
+    } catch (err) {
+      alert("Échec de la suppression (vérifie ta connexion et les Security Rules Firestore).");
+    } finally {
+      btnResetTous.disabled = false;
+    }
   });
 
   function demarrerEcoute() {
@@ -65,6 +83,7 @@ if (estOrganisateur) {
 
   function rendre(participants) {
     participants.sort((a, b) => compte(b) - compte(a));
+    dernierParticipants = participants;
     listeDashboard.innerHTML = "";
     participants.forEach((p) => {
       const n = compte(p);
