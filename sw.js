@@ -1,9 +1,12 @@
-const CACHE_NAME = "cirrestour-v2";
+const CACHE_NAME = "cirrestour-v3";
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./app.js",
+  "./firebase-init.js",
+  "./sync.js",
+  "./dashboard.js",
   "./manifest.json",
   "./assets/logo.png",
   "./icons/icon-192.png",
@@ -29,6 +32,8 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return; // laisser Firebase/gstatic/googleapis passer en réseau natif, sans les mettre en cache
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;

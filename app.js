@@ -4,6 +4,7 @@
   const STORAGE_KEY = "cirrestour_passeport_v1";
   const MAX_PHOTO_WIDTH = 900;
   const PHOTO_QUALITY = 0.72;
+  window.CIRRESTOUR_STORAGE_KEY = STORAGE_KEY;
 
   const DEFIS = [
     { id: "papangue", titre: "Photo d'un papangue", desc: "Immortalise ce rapace emblématique de Mafate", type: "photo", icone: "🦅" },
@@ -50,6 +51,18 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
 
+  // Notifie sync.js (module séparé, optionnel) qu'il peut pousser l'état vers Firestore.
+  // N'envoie jamais notes ni photos, seulement le prénom et les statuts "done".
+  function notifierSyncDistant() {
+    window.dispatchEvent(new CustomEvent("cirrestour:etat-modifie", {
+      detail: {
+        prenom: state.prenom,
+        defis: Object.fromEntries(DEFIS.map((d) => [d.id, !!state.defis[d.id].done])),
+        celebrated: state.celebrated
+      }
+    }));
+  }
+
   // ---------- Éléments DOM ----------
   const elOnboarding = document.getElementById("onboarding");
   const elApp = document.getElementById("app");
@@ -84,6 +97,7 @@
     if (!val) return;
     state.prenom = val;
     sauvegarder();
+    notifierSyncDistant();
     afficherApp();
   });
 
@@ -166,6 +180,7 @@
     renderListe();
     renderProgress();
     verifierCompletion();
+    notifierSyncDistant();
   }
 
   function ouvrirCapturePhoto(id) {
@@ -185,6 +200,7 @@
         renderListe();
         renderProgress();
         verifierCompletion();
+        notifierSyncDistant();
       })
       .catch(() => {});
   });
@@ -378,6 +394,8 @@
     btnInstall.classList.add("hidden");
     installInstructions.classList.add("hidden");
   });
+
+  window.addEventListener("cirrestour:retour-app", demarrer);
 
   demarrer();
 })();

@@ -392,3 +392,60 @@ button {
   background: var(--or);
   color: var(--texte);
 }
+
+/* ---------- Tableau de bord organisateur ---------- */
+.btn-dashboard-toggle {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  left: 12px;
+  z-index: 30;
+  background: var(--vert-fonce);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 9px 14px;
+  border-radius: 999px;
+  box-shadow: 0 3px 10px var(--ombre);
+}
+
+.btn-dashboard-toggle:active {
+  transform: scale(0.96);
+}
+
+#dashboard {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+}
+
+.dashboard-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dashboard-carte {
+  background: var(--creme-carte);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: 0 2px 8px var(--ombre);
+  border: 2px solid transparent;
+}
+
+.dashboard-carte.complet {
+  border-color: var(--or);
+}
+
+.dashboard-ligne {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.dashboard-score {
+  color: var(--vert-fonce);
+}

@@ -80,6 +80,26 @@
   </div>
 </section>
 
+<!-- Vue organisateur (masquée, activée via ?organisateur=CODE) -->
+<button id="btn-dashboard-toggle" class="btn-dashboard-toggle hidden">📊 Suivi</button>
+
+<section id="dashboard" class="screen hidden">
+  <header class="app-header">
+    <div class="header-text">
+      <h1>Suivi des participants</h1>
+      <p class="header-sub">Le Cirres'tour à Mafate</p>
+    </div>
+  </header>
+  <p id="dashboard-status" class="progress-label">Connexion en cours...</p>
+  <ul id="dashboard-liste" class="dashboard-liste"></ul>
+  <footer class="app-footer">
+    <button id="btn-fermer-dashboard" class="btn-reset">Fermer le tableau de bord</button>
+  </footer>
+</section>
+
 <script src="app.js"></script>
+<script type="module" src="firebase-init.js"></script>
+<script type="module" src="sync.js"></script>
+<script type="module" src="dashboard.js"></script>
 </body>
 </html>
