@@ -529,7 +529,8 @@ button {
 .editor-desc,
 .editor-icone,
 .editor-titre,
-.editor-type {
+.editor-type,
+.editor-validateurs {
   border-radius: 10px;
   border: 1px solid #e2ddcc;
   padding: 8px 10px;
@@ -539,9 +540,15 @@ button {
   color: var(--texte);
 }
 
-.editor-desc {
+.editor-desc,
+.editor-validateurs {
   width: 100%;
   resize: none;
+}
+
+.editor-validateurs {
+  display: block;
+  margin-top: 8px;
 }
 
 .editor-actions {

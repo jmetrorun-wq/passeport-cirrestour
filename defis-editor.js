@@ -75,6 +75,7 @@ if (estOrganisateur) {
           <input class="editor-titre" data-champ="titre" value="${escapeAttr(d.titre)}" maxlength="60">
         </div>
         <textarea class="editor-desc" data-champ="desc" rows="2" maxlength="140">${escapeAttr(d.desc)}</textarea>
+        <input class="editor-validateurs" data-champ-validateurs value="${escapeAttr((d.validateurs || []).join(", "))}" placeholder="Validateurs (ex: Manu, Chnick) — vide = ouvert à tou·te·s">
         <div class="editor-actions">
           <select class="editor-type" data-champ="type">
             <option value="check" ${d.type === "check" ? "selected" : ""}>Case à cocher</option>
@@ -92,6 +93,11 @@ if (estOrganisateur) {
 
       li.querySelectorAll("[data-champ]").forEach((el) => {
         el.addEventListener("input", () => { brouillon[i][el.dataset.champ] = el.value; });
+      });
+      li.querySelector("[data-champ-validateurs]").addEventListener("input", (e) => {
+        const noms = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
+        if (noms.length) brouillon[i].validateurs = noms;
+        else delete brouillon[i].validateurs;
       });
       li.querySelector('[data-action="up"]').addEventListener("click", () => deplacer(i, -1));
       li.querySelector('[data-action="down"]').addEventListener("click", () => deplacer(i, 1));
