@@ -48,7 +48,17 @@ function lireDemandesEnCours() {
 function ecrireDemandesEnCours(m) { localStorage.setItem(DEMANDES_KEY, JSON.stringify(m)); }
 
 window.CIRRESTOUR_getDemandeEnCours = function (defiId) {
-  return lireDemandesEnCours()[defiId] || null;
+  const entree = lireDemandesEnCours()[defiId];
+  // Ignore/nettoie les entrées d'un ancien format (avant l'envoi groupé à plusieurs destinataires).
+  if (!entree || !Array.isArray(entree.demandeIds) || !Array.isArray(entree.versPrenoms)) {
+    if (entree) {
+      const m = lireDemandesEnCours();
+      delete m[defiId];
+      ecrireDemandesEnCours(m);
+    }
+    return null;
+  }
+  return entree;
 };
 
 window.CIRRESTOUR_annulerDemande = async function (defiId) {
