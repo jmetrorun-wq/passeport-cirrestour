@@ -486,6 +486,20 @@ button {
   color: var(--vert-fonce);
 }
 
+.dashboard-droite {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dashboard-suppr {
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  padding: 2px 4px;
+  opacity: 0.6;
+}
+
 /* ---------- Éditeur de défis organisateur ---------- */
 #defis-editor {
   max-width: 480px;

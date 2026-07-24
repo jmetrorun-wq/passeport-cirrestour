@@ -90,9 +90,21 @@ if (estOrganisateur) {
       li.innerHTML = `
         <div class="dashboard-ligne">
           <span class="dashboard-nom">${escapeHtml(p.prenom || "(sans nom)")}</span>
-          <span class="dashboard-score">${n} / ${totalDefis}</span>
+          <span class="dashboard-droite">
+            <span class="dashboard-score">${n} / ${totalDefis}</span>
+            <button class="dashboard-suppr" title="Supprimer ce participant">🗑️</button>
+          </span>
         </div>
         <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>`;
+      li.querySelector(".dashboard-suppr").addEventListener("click", async () => {
+        const ok = confirm(`Supprimer "${p.prenom || "(sans nom)"}" de Firestore ? (n'efface pas son passeport local sur son téléphone, utile pour retirer un doublon)`);
+        if (!ok) return;
+        try {
+          await deleteDoc(doc(db, "participants", p.id));
+        } catch (err) {
+          alert("Échec de la suppression (vérifie ta connexion et les Security Rules Firestore).");
+        }
+      });
       listeDashboard.appendChild(li);
     });
     dashboardStatus.textContent = `${participants.length} participant(s) — mis à jour en direct`;
