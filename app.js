@@ -302,10 +302,15 @@
   photoInput.addEventListener("change", (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file || !photoDefiIdEnCours) return;
+    const defi = DEFIS.find((d) => d.id === photoDefiIdEnCours);
     redimensionnerImage(file, MAX_PHOTO_WIDTH, PHOTO_QUALITY)
       .then((dataUrl) => {
         state.defis[photoDefiIdEnCours].photo = dataUrl;
-        state.defis[photoDefiIdEnCours].done = true;
+        // Si une validation par pair est requise, la photo seule ne suffit pas à
+        // marquer le défi comme fait : il faut ensuite le faire valider (ou cocher soi-même).
+        if (!defi || !Array.isArray(defi.validateurs)) {
+          state.defis[photoDefiIdEnCours].done = true;
+        }
         sauvegarder();
         renderListe();
         renderProgress();
