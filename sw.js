@@ -1,4 +1,4 @@
-const CACHE_NAME = "cirrestour-v6";
+const CACHE_NAME = "cirrestour-v7";
 const ASSETS = [
   "./",
   "./index.html",
@@ -13,6 +13,7 @@ const ASSETS = [
   "./validation.js",
   "./manifest.json",
   "./assets/logo.png",
+  "./assets/repere-montee.jpg",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/apple-touch-icon.png"

@@ -11,7 +11,7 @@
     { id: "papangue", titre: "Photo d'un papangue", desc: "Immortalise ce rapace emblématique de Mafate", type: "photo", icone: "🦅" },
     { id: "compliment", titre: "Un compliment offert", desc: "Fais un compliment sincère à quelqu'un", type: "validation", icone: "💬" },
     { id: "encourager", titre: "Encourager un·e collègue", desc: "Un mot qui redonne des jambes dans la montée", type: "note", icone: "📣" },
-    { id: "montee", titre: "Une montée conquise", desc: "Termine une bonne montée sans craquer", type: "check", icone: "⛰️" },
+    { id: "montee", titre: "Le même endroit, en photo", desc: "Retrouve cet endroit du parcours et prends la même photo (repère ci-dessous)", type: "photo", icone: "⛰️", photoRef: "assets/repere-montee.jpg" },
     { id: "tunnel", titre: "Sous un tunnel", desc: "Passe sous un tunnel du parcours", type: "check", icone: "🕳️" },
     { id: "selfie", titre: "Selfie original", desc: "Le plus créatif possible !", type: "photo", icone: "🤳" },
     { id: "rire", titre: "Faire rire quelqu'un", desc: "Une bonne blague, une grimace...", type: "note", icone: "😂" },
@@ -207,6 +207,21 @@
           sauvegarder();
         });
         li.appendChild(textarea);
+      }
+
+      if (d.photoRef) {
+        const repere = document.createElement("div");
+        repere.className = "defi-repere";
+        const label = document.createElement("p");
+        label.className = "defi-repere-label";
+        label.textContent = "📍 Photo repère — reproduis ce cadrage :";
+        const imgRepere = document.createElement("img");
+        imgRepere.className = "defi-repere-img";
+        imgRepere.src = d.photoRef;
+        imgRepere.alt = "Photo de référence de l'endroit à retrouver";
+        repere.appendChild(label);
+        repere.appendChild(imgRepere);
+        li.appendChild(repere);
       }
 
       if (d.type === "photo") {

@@ -316,6 +316,26 @@ button {
   background: var(--creme);
 }
 
+.defi-repere {
+  margin-top: 10px;
+}
+
+.defi-repere-label {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  color: var(--texte-clair);
+  font-weight: 600;
+}
+
+.defi-repere-img {
+  width: 100%;
+  border-radius: 12px;
+  display: block;
+  object-fit: cover;
+  max-height: 220px;
+  border: 2px dashed #cfc9b5;
+}
+
 .defi-photo-btn {
   margin-top: 10px;
   width: 100%;
