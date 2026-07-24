@@ -29,13 +29,13 @@ const auth = getAuth(app);
 
 // Cache persistant IndexedDB : les écritures faites hors-ligne sont mises en file
 // et rejouées automatiquement à la reconnexion, même après fermeture/réouverture de l'app.
-// experimentalAutoDetectLongPolling : Safari échoue parfois sur le transport WebChannel par
-// défaut de Firestore ("Fetch API cannot load .../Listen/channel... due to access control
-// checks"), un problème de compatibilité connu et sans rapport avec les Security Rules —
-// ce réglage bascule automatiquement sur un transport en long-polling compatible.
+// experimentalForceLongPolling : le transport WebChannel par défaut de Firestore échoue dans
+// ce contexte ("Fetch API cannot load .../Listen/channel... due to access control checks"),
+// et la détection automatique (experimentalAutoDetectLongPolling) ne suffisait pas à
+// contourner le problème — on force donc le long-polling sans détection.
 const db = initializeFirestore(app, {
   localCache: persistentLocalCache({ tabManager: persistentSingleTabManager({}) }),
-  experimentalAutoDetectLongPolling: true
+  experimentalForceLongPolling: true
 });
 
 let resolveAuthReady;
