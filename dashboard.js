@@ -9,6 +9,7 @@ import {
   doc,
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { zipSync } from "https://cdn.jsdelivr.net/npm/fflate@0.8.2/+esm";
 
 const TOTAL_DEFIS_PAR_DEFAUT = 10; // repli si config/defis n'a jamais été publié
 
@@ -51,13 +52,12 @@ if (estOrganisateur) {
     }
   });
 
-  function dataUrlVersBlob(dataUrl) {
-    const [entete, base64] = dataUrl.split(",");
-    const mime = (entete.match(/data:(.*?);base64/) || [, "image/jpeg"])[1];
+  function dataUrlVersOctets(dataUrl) {
+    const base64 = dataUrl.split(",")[1];
     const binaire = atob(base64);
     const octets = new Uint8Array(binaire.length);
     for (let i = 0; i < binaire.length; i++) octets[i] = binaire.charCodeAt(i);
-    return new Blob([octets], { type: mime });
+    return octets;
   }
 
   btnTelechargerPhotos.addEventListener("click", async () => {
@@ -68,19 +68,24 @@ if (estOrganisateur) {
         alert("Aucune photo validée pour l'instant.");
         return;
       }
-      for (const d of snap.docs) {
+      const noms = new Set();
+      const fichiers = {};
+      snap.docs.forEach((d) => {
         const data = d.data();
-        const blob = dataUrlVersBlob(data.photo);
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${data.prenom || "participant"}-${data.defiId}.jpg`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-        await new Promise((r) => setTimeout(r, 200)); // laisse le navigateur accepter chaque téléchargement
-      }
+        let nom = `${data.prenom || "participant"}-${data.defiId}.jpg`;
+        if (noms.has(nom)) nom = `${data.prenom || "participant"}-${data.defiId}-${d.id}.jpg`;
+        noms.add(nom);
+        fichiers[nom] = dataUrlVersOctets(data.photo);
+      });
+      const zipOctets = zipSync(fichiers);
+      const url = URL.createObjectURL(new Blob([zipOctets], { type: "application/zip" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `photos-cirrestour-${new Date().toISOString().slice(0, 10)}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
     } catch (err) {
       alert("Échec du téléchargement (vérifie ta connexion et les Security Rules Firestore).");
     } finally {
