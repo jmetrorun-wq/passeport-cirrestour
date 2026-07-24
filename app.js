@@ -234,8 +234,24 @@
           img.className = "defi-photo-preview";
           img.src = s.photo;
           img.alt = d.titre;
-          img.addEventListener("click", () => ouvrirCapturePhoto(d.id));
           li.appendChild(img);
+
+          const actions = document.createElement("div");
+          actions.className = "defi-photo-actions";
+
+          const btnReprendre = document.createElement("button");
+          btnReprendre.className = "defi-photo-btn";
+          btnReprendre.textContent = "🔄 Reprendre";
+          btnReprendre.addEventListener("click", () => ouvrirCapturePhoto(d.id));
+
+          const btnSupprimer = document.createElement("button");
+          btnSupprimer.className = "defi-photo-btn defi-photo-supprimer";
+          btnSupprimer.textContent = "🗑️ Supprimer";
+          btnSupprimer.addEventListener("click", () => supprimerPhoto(d.id));
+
+          actions.appendChild(btnReprendre);
+          actions.appendChild(btnSupprimer);
+          li.appendChild(actions);
         } else {
           const btnPhoto = document.createElement("button");
           btnPhoto.className = "defi-photo-btn";
@@ -297,6 +313,14 @@
     photoDefiIdEnCours = id;
     photoInput.value = "";
     photoInput.click();
+  }
+
+  function supprimerPhoto(id) {
+    state.defis[id].photo = null;
+    sauvegarder();
+    renderListe();
+    renderProgress();
+    notifierSyncDistant();
   }
 
   photoInput.addEventListener("change", (e) => {

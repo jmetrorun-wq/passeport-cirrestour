@@ -367,6 +367,22 @@ button {
   max-height: 220px;
 }
 
+.defi-photo-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.defi-photo-actions .defi-photo-btn {
+  margin-top: 0;
+  flex: 1;
+}
+
+.defi-photo-supprimer {
+  color: #b3564a;
+  border-color: #e4c3bd;
+}
+
 .app-footer {
   margin-top: 28px;
   text-align: center;
