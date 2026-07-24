@@ -137,6 +137,11 @@
   }
   const btnFermerCelebration = document.getElementById("btn-fermer-celebration");
   const photoInput = document.getElementById("photo-input");
+  const btnTelechargerVisa = document.getElementById("btn-telecharger-visa");
+  const visaModal = document.getElementById("visa-modal");
+  const visaImage = document.getElementById("visa-image");
+  const visaDownloadLink = document.getElementById("visa-download-link");
+  const btnFermerVisa = document.getElementById("btn-fermer-visa");
 
   let photoDefiIdEnCours = null;
 
@@ -481,6 +486,75 @@
   window.addEventListener("resize", () => {
     if (!elCelebration.classList.contains("hidden")) redimensionnerCanvas();
   });
+
+  // ---------- Visa souvenir (image téléchargeable) ----------
+  const VISA_TEMPLATE_SRC = "assets/visa-template.jpg";
+  let visaTemplateImg = null;
+
+  function chargerVisaTemplate() {
+    if (visaTemplateImg) return Promise.resolve(visaTemplateImg);
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => { visaTemplateImg = img; resolve(img); };
+      img.onerror = reject;
+      img.src = VISA_TEMPLATE_SRC;
+    });
+  }
+
+  function genererVisaDataUrl(img, prenom) {
+    const canvas = document.createElement("canvas");
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+
+    const cx = canvas.width * 0.645;
+    const baseline = canvas.height * 0.54;
+    const label = "TITULAIRE DU VISA : ";
+    const largeurMax = canvas.width * 0.52;
+    const fontLabel = (t) => `italic bold ${Math.round(t * 0.6)}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+    const fontNom = (t) => `700 ${t}px -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`;
+
+    ctx.textAlign = "left";
+    let tailleNom = 40;
+    let largeurLabel, largeurNom;
+    do {
+      ctx.font = fontLabel(tailleNom);
+      largeurLabel = ctx.measureText(label).width;
+      ctx.font = fontNom(tailleNom);
+      largeurNom = ctx.measureText(prenom).width;
+      if (largeurLabel + largeurNom <= largeurMax || tailleNom <= 20) break;
+      tailleNom -= 2;
+    } while (true);
+
+    let x = cx - (largeurLabel + largeurNom) / 2;
+    ctx.font = fontLabel(tailleNom);
+    ctx.fillStyle = "#5c7154";
+    ctx.fillText(label, x, baseline);
+    x += largeurLabel;
+
+    ctx.font = fontNom(tailleNom);
+    ctx.fillStyle = "#a0781e";
+    ctx.fillText(prenom, x, baseline);
+
+    return canvas.toDataURL("image/png");
+  }
+
+  async function ouvrirVisa() {
+    try {
+      const img = await chargerVisaTemplate();
+      const dataUrl = genererVisaDataUrl(img, state.prenom || "Cirres'Touriste");
+      visaImage.src = dataUrl;
+      visaDownloadLink.href = dataUrl;
+      visaDownloadLink.download = `visa-cirrestour-${(state.prenom || "moi").toLowerCase().replace(/[^a-z0-9]+/gi, "-")}.png`;
+      visaModal.classList.remove("hidden");
+    } catch (e) {
+      alert("Impossible de générer le visa pour l'instant.");
+    }
+  }
+
+  btnTelechargerVisa.addEventListener("click", ouvrirVisa);
+  btnFermerVisa.addEventListener("click", () => visaModal.classList.add("hidden"));
 
   // ---------- Service worker (hors-ligne) ----------
   if ("serviceWorker" in navigator) {
