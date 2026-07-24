@@ -144,10 +144,12 @@ function envoyerDemandeGroupee(defiId, defiTitre, validateursAutorises) {
 async function envoyerDemandes(defiId, defiTitre, destinataires) {
   try {
     await authReady;
-    const dePrenom = lireEtat().prenom || "Quelqu'un";
+    const etat = lireEtat();
+    const dePrenom = etat.prenom || "Quelqu'un";
+    const photo = etat.defis && etat.defis[defiId] && etat.defis[defiId].photo;
     const demandeIds = [];
     for (const participant of destinataires) {
-      const docRef = await addDoc(collection(db, "demandes_validation"), {
+      const contenu = {
         deUid: auth.currentUser.uid,
         dePrenom,
         versUid: participant.uid,
@@ -156,7 +158,9 @@ async function envoyerDemandes(defiId, defiTitre, destinataires) {
         defiTitre,
         statut: "en_attente",
         createdAt: serverTimestamp()
-      });
+      };
+      if (photo) contenu.photo = photo;
+      const docRef = await addDoc(collection(db, "demandes_validation"), contenu);
       demandeIds.push(docRef.id);
     }
     const m = lireDemandesEnCours();
@@ -209,6 +213,7 @@ authReady.then((user) => {
 // ---------- Écoute des demandes reçues (à approuver) ----------
 const elBanniere = document.getElementById("validation-banniere");
 const banniereTexte = document.getElementById("validation-banniere-texte");
+const bannierePhoto = document.getElementById("validation-banniere-photo");
 const btnBanniereOui = document.getElementById("btn-validation-oui");
 const btnBanniereNon = document.getElementById("btn-validation-non");
 
@@ -236,6 +241,13 @@ function afficherProchaineDemande() {
   if (demandeEnCoursAffichee && fileDemandesRecues.some((d) => d.id === demandeEnCoursAffichee.id)) return;
   demandeEnCoursAffichee = fileDemandesRecues[0];
   banniereTexte.textContent = `${demandeEnCoursAffichee.dePrenom} confirme : « ${demandeEnCoursAffichee.defiTitre} » — tu valides ?`;
+  if (demandeEnCoursAffichee.photo) {
+    bannierePhoto.src = demandeEnCoursAffichee.photo;
+    bannierePhoto.classList.remove("hidden");
+  } else {
+    bannierePhoto.classList.add("hidden");
+    bannierePhoto.src = "";
+  }
   elBanniere.classList.remove("hidden");
 }
 

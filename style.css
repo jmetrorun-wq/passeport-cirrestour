@@ -664,6 +664,15 @@ button {
   text-align: center;
 }
 
+.validation-banniere-photo {
+  width: 100%;
+  border-radius: 12px;
+  display: block;
+  object-fit: cover;
+  max-height: 220px;
+  margin-bottom: 14px;
+}
+
 .validation-banniere-actions {
   display: flex;
   flex-direction: column;
