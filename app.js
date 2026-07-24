@@ -219,6 +219,7 @@
         imgRepere.className = "defi-repere-img";
         imgRepere.src = d.photoRef;
         imgRepere.alt = "Photo de référence de l'endroit à retrouver";
+        imgRepere.addEventListener("click", () => ouvrirLightboxRepere(d.photoRef));
         repere.appendChild(label);
         repere.appendChild(imgRepere);
         li.appendChild(repere);
@@ -276,6 +277,17 @@
     verifierCompletion();
     notifierSyncDistant();
   };
+
+  // ---------- Aperçu plein écran d'une photo repère ----------
+  const elLightboxRepere = document.getElementById("photo-repere-lightbox");
+  const imgLightboxRepere = document.getElementById("photo-repere-lightbox-img");
+
+  function ouvrirLightboxRepere(src) {
+    imgLightboxRepere.src = src;
+    elLightboxRepere.classList.remove("hidden");
+  }
+
+  elLightboxRepere.addEventListener("click", () => elLightboxRepere.classList.add("hidden"));
 
   function ouvrirCapturePhoto(id) {
     photoDefiIdEnCours = id;

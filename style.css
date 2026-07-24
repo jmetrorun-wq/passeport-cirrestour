@@ -334,6 +334,17 @@ button {
   object-fit: cover;
   max-height: 220px;
   border: 2px dashed #cfc9b5;
+  cursor: zoom-in;
+}
+
+#photo-repere-lightbox {
+  padding: 0;
+}
+
+.lightbox-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 .defi-photo-btn {
