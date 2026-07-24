@@ -538,3 +538,93 @@ button {
   font-size: 0.7rem;
   color: var(--texte-clair);
 }
+
+/* ---------- Validation par un·e pair (compliment, etc.) ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(58, 58, 48, 0.55);
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal-box {
+  background: var(--creme-carte);
+  border-radius: 18px;
+  padding: 22px;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: 0 8px 24px var(--ombre);
+}
+
+.modal-box > p {
+  margin: 0 0 14px;
+  font-weight: 600;
+}
+
+.validation-picker-liste {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.validation-picker-item {
+  width: 100%;
+  background: var(--creme);
+  border: 2px solid #e2ddcc;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+.validation-picker-item:active {
+  border-color: var(--vert);
+}
+
+#validation-picker .btn-reset,
+#validation-banniere .btn-reset {
+  width: 100%;
+  text-align: center;
+}
+
+.validation-banniere-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.defi-validation {
+  margin-top: 10px;
+}
+
+.validation-statut {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.validation-statut.validee {
+  color: var(--vert-fonce);
+  font-weight: 600;
+}
+
+.validation-statut.attente {
+  color: var(--or-fonce);
+}
+
+.validation-annuler {
+  margin-top: 4px;
+  background: none;
+  color: var(--texte-clair);
+  font-size: 0.78rem;
+  text-decoration: underline;
+  padding: 4px;
+}

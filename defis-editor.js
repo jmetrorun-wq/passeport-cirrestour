@@ -80,6 +80,7 @@ if (estOrganisateur) {
             <option value="check" ${d.type === "check" ? "selected" : ""}>Case à cocher</option>
             <option value="note" ${d.type === "note" ? "selected" : ""}>Note texte</option>
             <option value="photo" ${d.type === "photo" ? "selected" : ""}>Photo</option>
+            <option value="validation" ${d.type === "validation" ? "selected" : ""}>Validation par un·e collègue</option>
           </select>
           <span>
             <button type="button" data-action="up" ${i === 0 ? "disabled" : ""}>▲</button>

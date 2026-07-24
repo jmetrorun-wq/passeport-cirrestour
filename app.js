@@ -9,7 +9,7 @@
   // Jeu de défis bundlé, utilisé tant qu'aucune config organisateur n'a été reçue.
   const DEFIS_DEFAUT = [
     { id: "papangue", titre: "Photo d'un papangue", desc: "Immortalise ce rapace emblématique de Mafate", type: "photo", icone: "🦅" },
-    { id: "compliment", titre: "Un compliment offert", desc: "Fais un compliment sincère à quelqu'un", type: "note", icone: "💬" },
+    { id: "compliment", titre: "Un compliment offert", desc: "Fais un compliment sincère à quelqu'un", type: "validation", icone: "💬" },
     { id: "encourager", titre: "Encourager un·e collègue", desc: "Un mot qui redonne des jambes dans la montée", type: "note", icone: "📣" },
     { id: "montee", titre: "Une montée conquise", desc: "Termine une bonne montée sans craquer", type: "check", icone: "⛰️" },
     { id: "tunnel", titre: "Sous un tunnel", desc: "Passe sous un tunnel du parcours", type: "check", icone: "🕳️" },
@@ -196,7 +196,7 @@
       top.appendChild(check);
       li.appendChild(top);
 
-      if (d.type === "note") {
+      if (d.type === "note" || d.type === "validation") {
         const textarea = document.createElement("textarea");
         textarea.className = "defi-note";
         textarea.rows = 2;
@@ -226,8 +226,17 @@
         }
       }
 
+      if (d.type === "validation") {
+        const conteneur = document.createElement("div");
+        conteneur.className = "defi-validation";
+        conteneur.dataset.defiId = d.id;
+        conteneur.dataset.titre = d.titre;
+        li.appendChild(conteneur);
+      }
+
       listeDefis.appendChild(li);
     });
+    window.dispatchEvent(new CustomEvent("cirrestour:liste-rendue"));
   }
 
   function basculerDone(id) {
@@ -238,6 +247,20 @@
     verifierCompletion();
     notifierSyncDistant();
   }
+
+  // Appelé par validation.js quand une demande de validation a été acceptée par la personne concernée.
+  window.CIRRESTOUR_marquerValide = function (id, parPrenom) {
+    if (!state.defis[id] || state.defis[id].done) return;
+    state.defis[id].done = true;
+    state.defis[id].valideePar = parPrenom;
+    sauvegarder();
+    if (!elApp.classList.contains("hidden")) {
+      renderListe();
+      renderProgress();
+    }
+    verifierCompletion();
+    notifierSyncDistant();
+  };
 
   function ouvrirCapturePhoto(id) {
     photoDefiIdEnCours = id;

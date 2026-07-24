@@ -101,6 +101,26 @@
   </footer>
 </section>
 
+<!-- Sélecteur de destinataire pour une demande de validation -->
+<div id="validation-picker" class="modal-overlay hidden">
+  <div class="modal-box">
+    <p>Qui valide « <span id="validation-picker-defi"></span> » ?</p>
+    <ul id="validation-picker-liste" class="validation-picker-liste"></ul>
+    <button id="btn-fermer-validation-picker" class="btn-reset">Annuler</button>
+  </div>
+</div>
+
+<!-- Bannière de demande de validation reçue -->
+<div id="validation-banniere" class="modal-overlay hidden">
+  <div class="modal-box">
+    <p id="validation-banniere-texte"></p>
+    <div class="validation-banniere-actions">
+      <button id="btn-validation-oui" class="btn-revoir">Oui, je confirme</button>
+      <button id="btn-validation-non" class="btn-reset">Non</button>
+    </div>
+  </div>
+</div>
+
 <!-- Éditeur de défis organisateur -->
 <section id="defis-editor" class="screen hidden">
   <header class="app-header">
@@ -126,5 +146,6 @@
 <script type="module" src="defis-sync.js"></script>
 <script type="module" src="dashboard.js"></script>
 <script type="module" src="defis-editor.js"></script>
+<script type="module" src="validation.js"></script>
 </body>
 </html>
