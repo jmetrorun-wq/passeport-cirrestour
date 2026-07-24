@@ -5,6 +5,7 @@ import { estOrganisateur } from "./organisateur.js";
 import {
   collection,
   onSnapshot,
+  getDocs,
   doc,
   deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -18,6 +19,7 @@ if (estOrganisateur) {
   const dashboardStatus = document.getElementById("dashboard-status");
   const btnFermer = document.getElementById("btn-fermer-dashboard");
   const btnResetTous = document.getElementById("btn-reset-tous");
+  const btnTelechargerPhotos = document.getElementById("btn-telecharger-photos");
 
   btnToggle.classList.remove("hidden");
   let abonne = false;
@@ -46,6 +48,43 @@ if (estOrganisateur) {
       alert("Échec de la suppression (vérifie ta connexion et les Security Rules Firestore).");
     } finally {
       btnResetTous.disabled = false;
+    }
+  });
+
+  function dataUrlVersBlob(dataUrl) {
+    const [entete, base64] = dataUrl.split(",");
+    const mime = (entete.match(/data:(.*?);base64/) || [, "image/jpeg"])[1];
+    const binaire = atob(base64);
+    const octets = new Uint8Array(binaire.length);
+    for (let i = 0; i < binaire.length; i++) octets[i] = binaire.charCodeAt(i);
+    return new Blob([octets], { type: mime });
+  }
+
+  btnTelechargerPhotos.addEventListener("click", async () => {
+    btnTelechargerPhotos.disabled = true;
+    try {
+      const snap = await getDocs(collection(db, "photos_validees"));
+      if (snap.empty) {
+        alert("Aucune photo validée pour l'instant.");
+        return;
+      }
+      for (const d of snap.docs) {
+        const data = d.data();
+        const blob = dataUrlVersBlob(data.photo);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${data.prenom || "participant"}-${data.defiId}.jpg`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        await new Promise((r) => setTimeout(r, 200)); // laisse le navigateur accepter chaque téléchargement
+      }
+    } catch (err) {
+      alert("Échec du téléchargement (vérifie ta connexion et les Security Rules Firestore).");
+    } finally {
+      btnTelechargerPhotos.disabled = false;
     }
   });
 

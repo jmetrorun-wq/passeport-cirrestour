@@ -7,6 +7,7 @@ import {
   collection,
   addDoc,
   doc,
+  setDoc,
   updateDoc,
   deleteDoc,
   onSnapshot,
@@ -14,6 +15,29 @@ import {
   where,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// Envoie vers Firestore (collection photos_validees) la photo d'un défi tout juste
+// validé, pour un montage après la rando. Best-effort, jamais bloquant : aucune erreur
+// ne doit gêner l'usage normal (seule exception à la règle "les photos restent 100%
+// locales", et seulement une fois le défi validé par un pair, jamais avant).
+async function tenterUploadPhoto(defiId, defiTitre) {
+  try {
+    const etat = lireEtat();
+    const photo = etat.defis && etat.defis[defiId] && etat.defis[defiId].photo;
+    if (!photo) return;
+    const uid = auth.currentUser.uid;
+    await setDoc(doc(db, "photos_validees", `${uid}_${defiId}`), {
+      uid,
+      prenom: etat.prenom || "Quelqu'un",
+      defiId,
+      defiTitre: defiTitre || defiId,
+      photo,
+      createdAt: serverTimestamp()
+    });
+  } catch (e) {
+    // Silencieux : pas de réseau, ou règles Firestore pas encore en place pour cette collection.
+  }
+}
 
 function lireEtat() {
   try {
@@ -123,7 +147,7 @@ async function envoyerDemandes(defiId, defiTitre, destinataires) {
     const dePrenom = lireEtat().prenom || "Quelqu'un";
     const demandeIds = [];
     for (const participant of destinataires) {
-      const ref = await addDoc(collection(db, "demandes_validation"), {
+      const docRef = await addDoc(collection(db, "demandes_validation"), {
         deUid: auth.currentUser.uid,
         dePrenom,
         versUid: participant.uid,
@@ -133,7 +157,7 @@ async function envoyerDemandes(defiId, defiTitre, destinataires) {
         statut: "en_attente",
         createdAt: serverTimestamp()
       });
-      demandeIds.push(ref.id);
+      demandeIds.push(docRef.id);
     }
     const m = lireDemandesEnCours();
     m[defiId] = { demandeIds, versPrenoms: destinataires.map((p) => p.prenom) };
@@ -166,6 +190,7 @@ authReady.then((user) => {
           delete m[d.defiId];
           ecrireDemandesEnCours(m);
           if (window.CIRRESTOUR_marquerValide) window.CIRRESTOUR_marquerValide(d.defiId, d.versPrenom);
+          tenterUploadPhoto(d.defiId, d.defiTitre);
         } else {
           // Refus d'une seule personne : on continue d'attendre les autres, s'il y en a.
           entree.demandeIds = entree.demandeIds.filter((id) => id !== change.doc.id);
