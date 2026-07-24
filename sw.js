@@ -1,4 +1,4 @@
-const CACHE_NAME = "cirrestour-v24";
+const CACHE_NAME = "cirrestour-v25";
 const ASSETS = [
   "./",
   "./index.html",

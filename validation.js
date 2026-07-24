@@ -23,8 +23,9 @@ import {
 async function tenterUploadPhoto(defiId, defiTitre) {
   try {
     const etat = lireEtat();
-    const photo = etat.defis && etat.defis[defiId] && etat.defis[defiId].photo;
-    if (!photo) return;
+    const photoOriginale = etat.defis && etat.defis[defiId] && etat.defis[defiId].photo;
+    if (!photoOriginale) return;
+    const photo = await redimensionnerDataUrl(photoOriginale, 700, 0.6);
     const uid = auth.currentUser.uid;
     await setDoc(doc(db, "photos_validees", `${uid}_${defiId}`), {
       uid,
@@ -37,6 +38,28 @@ async function tenterUploadPhoto(defiId, defiTitre) {
   } catch (e) {
     console.error("cirrestour: échec tenterUploadPhoto", e);
   }
+}
+
+// Une photo capturée localement (900px, qualité 0.72) dépasse largement la limite de
+// taille d'un document Firestore (1 Mo) une fois combinée à d'autres photos/champs.
+// On génère donc une version bien plus compressée, uniquement pour la transmission
+// (bannière de validation + collection photos_validees) — jamais pour l'usage local.
+function redimensionnerDataUrl(dataUrl, maxWidth, quality) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onerror = reject;
+    img.onload = () => {
+      const ratio = Math.min(1, maxWidth / img.width);
+      const w = Math.round(img.width * ratio);
+      const h = Math.round(img.height * ratio);
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL("image/jpeg", quality));
+    };
+    img.src = dataUrl;
+  });
 }
 
 function lireEtat() {
@@ -146,7 +169,8 @@ async function envoyerDemandes(defiId, defiTitre, destinataires) {
     await authReady;
     const etat = lireEtat();
     const dePrenom = etat.prenom || "Quelqu'un";
-    const photo = etat.defis && etat.defis[defiId] && etat.defis[defiId].photo;
+    const photoOriginale = etat.defis && etat.defis[defiId] && etat.defis[defiId].photo;
+    const photo = photoOriginale ? await redimensionnerDataUrl(photoOriginale, 500, 0.5) : null;
     const demandeIds = [];
     for (const participant of destinataires) {
       const contenu = {
