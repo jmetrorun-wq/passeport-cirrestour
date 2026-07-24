@@ -35,7 +35,7 @@ async function tenterUploadPhoto(defiId, defiTitre) {
       createdAt: serverTimestamp()
     });
   } catch (e) {
-    // Silencieux : pas de réseau, ou règles Firestore pas encore en place pour cette collection.
+    console.error("cirrestour: échec tenterUploadPhoto", e);
   }
 }
 
@@ -168,6 +168,7 @@ async function envoyerDemandes(defiId, defiTitre, destinataires) {
     ecrireDemandesEnCours(m);
     peuplerWidgets();
   } catch (e) {
+    console.error("cirrestour: échec envoyerDemandes", e);
     alert("Échec de l'envoi (pas de réseau pour l'instant ?). Réessaie plus tard, ou coche la case toi-même.");
   }
 }
@@ -262,6 +263,7 @@ async function repondre(accepte) {
   try {
     await updateDoc(doc(db, "demandes_validation", traitee.id), { statut: accepte ? "validee" : "refusee" });
   } catch (e) {
+    console.error("cirrestour: échec repondre", e);
     alert("Échec de l'envoi de ta réponse (réessaie quand il y aura du réseau).");
   }
   fileDemandesRecues = fileDemandesRecues.filter((d) => d.id !== traitee.id);
