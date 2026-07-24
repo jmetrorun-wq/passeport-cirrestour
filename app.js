@@ -7,17 +7,20 @@
   window.CIRRESTOUR_STORAGE_KEY = STORAGE_KEY;
 
   // Jeu de défis bundlé, utilisé tant qu'aucune config organisateur n'a été reçue.
+  // "compliment" reste en validation ouverte (n'importe quel·le participant·e).
+  // Tous les autres défis demandent une validation restreinte à Manu ou Chnick.
+  const VALIDATEURS_REFERENTS = ["Manu", "Chnick"];
   const DEFIS_DEFAUT = [
-    { id: "papangue", titre: "Photo d'un papangue", desc: "Immortalise ce rapace emblématique de Mafate", type: "photo", icone: "🦅" },
+    { id: "papangue", titre: "Photo d'un papangue", desc: "Immortalise ce rapace emblématique de Mafate", type: "photo", icone: "🦅", validateurs: VALIDATEURS_REFERENTS },
     { id: "compliment", titre: "Un compliment offert", desc: "Fais un compliment sincère à quelqu'un", type: "validation", icone: "💬" },
-    { id: "encourager", titre: "Encourager un·e collègue", desc: "Un mot qui redonne des jambes dans la montée", type: "note", icone: "📣" },
-    { id: "montee", titre: "Le même endroit, en photo", desc: "Retrouve cet endroit du parcours et prends la même photo (repère ci-dessous)", type: "photo", icone: "⛰️", photoRef: "assets/repere-montee.jpg" },
-    { id: "tunnel", titre: "Sous un tunnel", desc: "Passe sous un tunnel du parcours", type: "check", icone: "🕳️" },
-    { id: "selfie", titre: "Selfie original", desc: "Le plus créatif possible !", type: "photo", icone: "🤳" },
-    { id: "rire", titre: "Faire rire quelqu'un", desc: "Une bonne blague, une grimace...", type: "note", icone: "😂" },
-    { id: "aider", titre: "Aider une personne", desc: "Un coup de main, un sac porté...", type: "note", icone: "🤝" },
-    { id: "secret", titre: "Un secret dévoilé", desc: "Apprends une info perso sur un·e collègue", type: "note", icone: "🕵️" },
-    { id: "esprit-equipe", titre: "Esprit d'équipe", desc: "Photo/selfie qui représente le groupe", type: "photo", icone: "🌟" }
+    { id: "encourager", titre: "Encourager un·e collègue", desc: "Un mot qui redonne des jambes dans la montée", type: "note", icone: "📣", validateurs: VALIDATEURS_REFERENTS },
+    { id: "montee", titre: "Le même endroit, en photo", desc: "Retrouve cet endroit du parcours et prends la même photo (repère ci-dessous)", type: "photo", icone: "⛰️", photoRef: "assets/repere-montee.jpg", validateurs: VALIDATEURS_REFERENTS },
+    { id: "tunnel", titre: "Sous un tunnel", desc: "Passe sous un tunnel du parcours", type: "check", icone: "🕳️", validateurs: VALIDATEURS_REFERENTS },
+    { id: "selfie", titre: "Selfie original", desc: "Le plus créatif possible !", type: "photo", icone: "🤳", validateurs: VALIDATEURS_REFERENTS },
+    { id: "rire", titre: "Faire rire quelqu'un", desc: "Une bonne blague, une grimace...", type: "note", icone: "😂", validateurs: VALIDATEURS_REFERENTS },
+    { id: "aider", titre: "Aider une personne", desc: "Un coup de main, un sac porté...", type: "note", icone: "🤝", validateurs: VALIDATEURS_REFERENTS },
+    { id: "secret", titre: "Un secret dévoilé", desc: "Apprends une info perso sur un·e collègue", type: "note", icone: "🕵️", validateurs: VALIDATEURS_REFERENTS },
+    { id: "esprit-equipe", titre: "Esprit d'équipe", desc: "Photo/selfie qui représente le groupe", type: "photo", icone: "🌟", validateurs: VALIDATEURS_REFERENTS }
   ];
   window.CIRRESTOUR_DEFIS_DEFAUT = DEFIS_DEFAUT;
 
@@ -242,11 +245,12 @@
         }
       }
 
-      if (d.type === "validation") {
+      if (d.type === "validation" || Array.isArray(d.validateurs)) {
         const conteneur = document.createElement("div");
         conteneur.className = "defi-validation";
         conteneur.dataset.defiId = d.id;
         conteneur.dataset.titre = d.titre;
+        if (Array.isArray(d.validateurs)) conteneur.dataset.validateurs = d.validateurs.join(",");
         li.appendChild(conteneur);
       }
 

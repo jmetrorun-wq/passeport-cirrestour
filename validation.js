@@ -69,15 +69,22 @@ const pickerDefiTitre = document.getElementById("validation-picker-defi");
 
 let defiEnCoursPourPicker = null;
 
-window.CIRRESTOUR_ouvrirDemandeValidation = function (defiId, defiTitre) {
-  if (!roster.length) {
-    alert("Aucune connexion ou aucun·e autre participant·e détecté·e pour l'instant. Réessaie quand il y aura du réseau, ou coche simplement la case toi-même.");
+window.CIRRESTOUR_ouvrirDemandeValidation = function (defiId, defiTitre, validateursAutorises) {
+  const restreint = Array.isArray(validateursAutorises) && validateursAutorises.length > 0;
+  const options = restreint
+    ? roster.filter((p) => validateursAutorises.some((v) => v.toLowerCase() === p.prenom.toLowerCase()))
+    : roster;
+
+  if (!options.length) {
+    alert(restreint
+      ? `${validateursAutorises.join(" ou ")} n'a pas encore été détecté·e (réseau ou passeport pas encore commencé). Réessaie plus tard, ou coche simplement la case toi-même.`
+      : "Aucune connexion ou aucun·e autre participant·e détecté·e pour l'instant. Réessaie quand il y aura du réseau, ou coche simplement la case toi-même.");
     return;
   }
   defiEnCoursPourPicker = { id: defiId, titre: defiTitre };
   pickerDefiTitre.textContent = defiTitre;
   listePicker.innerHTML = "";
-  roster.forEach((p) => {
+  options.forEach((p) => {
     const btn = document.createElement("button");
     btn.className = "validation-picker-item";
     btn.textContent = p.prenom;
@@ -191,6 +198,7 @@ function peuplerWidgets() {
   document.querySelectorAll(".defi-validation").forEach((conteneur) => {
     const defiId = conteneur.dataset.defiId;
     const defiTitre = conteneur.dataset.titre;
+    const validateurs = conteneur.dataset.validateurs ? conteneur.dataset.validateurs.split(",") : null;
     const etat = lireEtat();
     const s = etat.defis && etat.defis[defiId];
     conteneur.innerHTML = "";
@@ -219,8 +227,10 @@ function peuplerWidgets() {
     } else {
       const btn = document.createElement("button");
       btn.className = "defi-photo-btn";
-      btn.textContent = "🤝 Demander une validation";
-      btn.addEventListener("click", () => window.CIRRESTOUR_ouvrirDemandeValidation(defiId, defiTitre));
+      btn.textContent = validateurs
+        ? `🤝 Demander une validation à ${validateurs.join(" ou ")}`
+        : "🤝 Demander une validation";
+      btn.addEventListener("click", () => window.CIRRESTOUR_ouvrirDemandeValidation(defiId, defiTitre, validateurs));
       conteneur.appendChild(btn);
     }
   });
