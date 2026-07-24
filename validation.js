@@ -58,10 +58,12 @@ window.CIRRESTOUR_annulerDemande = async function (defiId) {
   delete m[defiId];
   ecrireDemandesEnCours(m);
   peuplerWidgets();
-  try { await deleteDoc(doc(db, "demandes_validation", entree.demandeId)); } catch (e) { /* pas grave, sera orpheline côté Firestore */ }
+  await Promise.all(entree.demandeIds.map((id) =>
+    deleteDoc(doc(db, "demandes_validation", id)).catch(() => { /* pas grave, sera orpheline côté Firestore */ })
+  ));
 };
 
-// ---------- Sélecteur de destinataire ----------
+// ---------- Sélecteur de destinataire (validation ouverte, ex. "compliment") ----------
 const elPicker = document.getElementById("validation-picker");
 const listePicker = document.getElementById("validation-picker-liste");
 const btnFermerPicker = document.getElementById("btn-fermer-validation-picker");
@@ -69,26 +71,22 @@ const pickerDefiTitre = document.getElementById("validation-picker-defi");
 
 let defiEnCoursPourPicker = null;
 
-window.CIRRESTOUR_ouvrirDemandeValidation = function (defiId, defiTitre, validateursAutorises) {
-  const restreint = Array.isArray(validateursAutorises) && validateursAutorises.length > 0;
-  const options = restreint
-    ? roster.filter((p) => validateursAutorises.some((v) => v.toLowerCase() === p.prenom.toLowerCase()))
-    : roster;
-
-  if (!options.length) {
-    alert(restreint
-      ? `${validateursAutorises.join(" ou ")} n'a pas encore été détecté·e (réseau ou passeport pas encore commencé). Réessaie plus tard, ou coche simplement la case toi-même.`
-      : "Aucune connexion ou aucun·e autre participant·e détecté·e pour l'instant. Réessaie quand il y aura du réseau, ou coche simplement la case toi-même.");
+window.CIRRESTOUR_ouvrirDemandeValidation = function (defiId, defiTitre) {
+  if (!roster.length) {
+    alert("Aucune connexion ou aucun·e autre participant·e détecté·e pour l'instant. Réessaie quand il y aura du réseau, ou coche simplement la case toi-même.");
     return;
   }
   defiEnCoursPourPicker = { id: defiId, titre: defiTitre };
   pickerDefiTitre.textContent = defiTitre;
   listePicker.innerHTML = "";
-  options.forEach((p) => {
+  roster.forEach((p) => {
     const btn = document.createElement("button");
     btn.className = "validation-picker-item";
     btn.textContent = p.prenom;
-    btn.addEventListener("click", () => envoyerDemande(p));
+    btn.addEventListener("click", () => {
+      envoyerDemandes(defiEnCoursPourPicker.id, defiEnCoursPourPicker.titre, [p]);
+      elPicker.classList.add("hidden");
+    });
     listePicker.appendChild(btn);
   });
   elPicker.classList.remove("hidden");
@@ -96,24 +94,40 @@ window.CIRRESTOUR_ouvrirDemandeValidation = function (defiId, defiTitre, validat
 
 btnFermerPicker.addEventListener("click", () => elPicker.classList.add("hidden"));
 
-async function envoyerDemande(participant) {
+// ---------- Demande groupée (validation restreinte, ex. Manu/Chnick) : envoyée à
+// tou·te·s les référent·e·s détecté·e·s en même temps, le/la premier·e à valider l'emporte.
+function envoyerDemandeGroupee(defiId, defiTitre, validateursAutorises) {
+  const cibles = roster.filter((p) => validateursAutorises.some((v) => v.toLowerCase() === p.prenom.toLowerCase()));
+  if (!cibles.length) {
+    alert(`${validateursAutorises.join(" ou ")} n'a pas encore été détecté·e (réseau ou passeport pas encore commencé). Réessaie plus tard, ou coche simplement la case toi-même.`);
+    return;
+  }
+  envoyerDemandes(defiId, defiTitre, cibles);
+}
+
+// Crée une demande Firestore par destinataire, et suit le groupe comme une seule
+// entrée en attente (premier·e à répondre "validee" l'emporte pour les autres).
+async function envoyerDemandes(defiId, defiTitre, destinataires) {
   try {
     await authReady;
     const dePrenom = lireEtat().prenom || "Quelqu'un";
-    const ref = await addDoc(collection(db, "demandes_validation"), {
-      deUid: auth.currentUser.uid,
-      dePrenom,
-      versUid: participant.uid,
-      versPrenom: participant.prenom,
-      defiId: defiEnCoursPourPicker.id,
-      defiTitre: defiEnCoursPourPicker.titre,
-      statut: "en_attente",
-      createdAt: serverTimestamp()
-    });
+    const demandeIds = [];
+    for (const participant of destinataires) {
+      const ref = await addDoc(collection(db, "demandes_validation"), {
+        deUid: auth.currentUser.uid,
+        dePrenom,
+        versUid: participant.uid,
+        versPrenom: participant.prenom,
+        defiId,
+        defiTitre,
+        statut: "en_attente",
+        createdAt: serverTimestamp()
+      });
+      demandeIds.push(ref.id);
+    }
     const m = lireDemandesEnCours();
-    m[defiEnCoursPourPicker.id] = { demandeId: ref.id, versPrenom: participant.prenom };
+    m[defiId] = { demandeIds, versPrenoms: destinataires.map((p) => p.prenom) };
     ecrireDemandesEnCours(m);
-    elPicker.classList.add("hidden");
     peuplerWidgets();
   } catch (e) {
     alert("Échec de l'envoi (pas de réseau pour l'instant ?). Réessaie plus tard, ou coche la case toi-même.");
@@ -129,13 +143,27 @@ authReady.then((user) => {
         const d = change.doc.data();
         if (d.statut === "en_attente") return;
         const m = lireDemandesEnCours();
-        if (!m[d.defiId] || m[d.defiId].demandeId !== change.doc.id) return;
-        delete m[d.defiId];
-        ecrireDemandesEnCours(m);
-        if (d.statut === "validee" && window.CIRRESTOUR_marquerValide) {
-          window.CIRRESTOUR_marquerValide(d.defiId, d.versPrenom);
-        }
+        const entree = m[d.defiId];
+        if (!entree || !entree.demandeIds.includes(change.doc.id)) return;
+
         deleteDoc(change.doc.ref).catch(() => {});
+
+        if (d.statut === "validee") {
+          // Premier·e à valider : on annule les demandes encore en attente auprès des autres.
+          entree.demandeIds
+            .filter((id) => id !== change.doc.id)
+            .forEach((id) => deleteDoc(doc(db, "demandes_validation", id)).catch(() => {}));
+          delete m[d.defiId];
+          ecrireDemandesEnCours(m);
+          if (window.CIRRESTOUR_marquerValide) window.CIRRESTOUR_marquerValide(d.defiId, d.versPrenom);
+        } else {
+          // Refus d'une seule personne : on continue d'attendre les autres, s'il y en a.
+          entree.demandeIds = entree.demandeIds.filter((id) => id !== change.doc.id);
+          entree.versPrenoms = entree.versPrenoms.filter((n) => n !== d.versPrenom);
+          if (entree.demandeIds.length) m[d.defiId] = entree;
+          else delete m[d.defiId];
+          ecrireDemandesEnCours(m);
+        }
         peuplerWidgets();
       });
     },
@@ -217,7 +245,7 @@ function peuplerWidgets() {
     if (enCours) {
       const p = document.createElement("p");
       p.className = "validation-statut attente";
-      p.textContent = `⏳ En attente de validation par ${enCours.versPrenom}...`;
+      p.textContent = `⏳ En attente de validation par ${enCours.versPrenoms.join(" ou ")}...`;
       const btnAnnuler = document.createElement("button");
       btnAnnuler.className = "validation-annuler";
       btnAnnuler.textContent = "Annuler";
@@ -230,7 +258,10 @@ function peuplerWidgets() {
       btn.textContent = validateurs
         ? `🤝 Demander une validation à ${validateurs.join(" ou ")}`
         : "🤝 Demander une validation";
-      btn.addEventListener("click", () => window.CIRRESTOUR_ouvrirDemandeValidation(defiId, defiTitre, validateurs));
+      btn.addEventListener("click", () => {
+        if (validateurs) envoyerDemandeGroupee(defiId, defiTitre, validateurs);
+        else window.CIRRESTOUR_ouvrirDemandeValidation(defiId, defiTitre);
+      });
       conteneur.appendChild(btn);
     }
   });
