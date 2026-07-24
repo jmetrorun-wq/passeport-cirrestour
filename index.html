@@ -5,7 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#7c9473">
 <title>Passeport Cirres'Tour à Mafate</title>
-<link rel="manifest" href="manifest.json">
+<script>
+  // Sur iOS, l'icône "Ajouter à l'écran d'accueil" utilise toujours le start_url du
+  // manifeste lié à cet instant, quelle que soit l'URL affichée ensuite dans Safari.
+  // On pointe donc vers un manifeste dédié (start_url avec ?organisateur=...) tant que
+  // ce paramètre est présent, pour que l'icône organisateur relance toujours avec le code.
+  (function () {
+    var params = new URLSearchParams(location.search);
+    var href = params.has("organisateur") ? "manifest-organisateur.json" : "manifest.json";
+    var link = document.createElement("link");
+    link.rel = "manifest";
+    link.href = href;
+    document.head.appendChild(link);
+  })();
+</script>
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="style.css">

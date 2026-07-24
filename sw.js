@@ -1,4 +1,4 @@
-const CACHE_NAME = "cirrestour-v7";
+const CACHE_NAME = "cirrestour-v8";
 const ASSETS = [
   "./",
   "./index.html",
@@ -12,6 +12,7 @@ const ASSETS = [
   "./defis-editor.js",
   "./validation.js",
   "./manifest.json",
+  "./manifest-organisateur.json",
   "./assets/logo.png",
   "./assets/repere-montee.jpg",
   "./icons/icon-192.png",
