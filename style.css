@@ -450,38 +450,25 @@ button {
 }
 
 /* ---------- Visa souvenir ---------- */
-.visa-modal-box {
-  max-width: 420px;
-  text-align: center;
+.visa-modal-overlay {
+  flex-direction: column;
+  gap: 14px;
 }
 
 .visa-image {
   width: 100%;
+  max-width: 420px;
   border-radius: 10px;
   display: block;
   border: 2px solid #e4dfc8;
-  margin-bottom: 10px;
+  box-shadow: 0 8px 24px var(--ombre);
 }
 
 .visa-aide {
   font-size: 0.78rem;
-  color: var(--texte-clair);
-  margin: 0 0 14px;
-}
-
-.visa-download-btn {
-  display: block;
-  text-decoration: none;
+  color: #fff;
   text-align: center;
-  margin-bottom: 10px;
-}
-
-.btn-visa-fermer {
-  background: none;
-  color: var(--texte-clair);
-  text-decoration: underline;
-  font-size: 0.85rem;
-  padding: 8px;
+  margin: 0;
 }
 
 /* ---------- Barre organisateur (dashboard + éditeur de défis) ---------- */

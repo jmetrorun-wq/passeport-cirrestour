@@ -140,8 +140,6 @@
   const btnTelechargerVisa = document.getElementById("btn-telecharger-visa");
   const visaModal = document.getElementById("visa-modal");
   const visaImage = document.getElementById("visa-image");
-  const visaDownloadLink = document.getElementById("visa-download-link");
-  const btnFermerVisa = document.getElementById("btn-fermer-visa");
 
   let photoDefiIdEnCours = null;
 
@@ -546,8 +544,6 @@
       const img = await chargerVisaTemplate();
       const dataUrl = genererVisaDataUrl(img, state.prenom || "Cirres'Touriste");
       visaImage.src = dataUrl;
-      visaDownloadLink.href = dataUrl;
-      visaDownloadLink.download = `visa-cirrestour-${(state.prenom || "moi").toLowerCase().replace(/[^a-z0-9]+/gi, "-")}.png`;
       visaModal.classList.remove("hidden");
     } catch (e) {
       alert("Impossible de générer le visa pour l'instant.");
@@ -555,7 +551,9 @@
   }
 
   btnTelechargerVisa.addEventListener("click", ouvrirVisa);
-  btnFermerVisa.addEventListener("click", () => visaModal.classList.add("hidden"));
+  visaModal.addEventListener("click", (e) => {
+    if (e.target === visaModal) visaModal.classList.add("hidden");
+  });
 
   // ---------- Service worker (hors-ligne) ----------
   if ("serviceWorker" in navigator) {
