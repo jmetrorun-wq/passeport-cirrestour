@@ -452,6 +452,9 @@ button {
 /* ---------- Visa souvenir ---------- */
 .visa-modal-overlay {
   flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: max(50px, env(safe-area-inset-top) + 30px);
   gap: 14px;
 }
 
