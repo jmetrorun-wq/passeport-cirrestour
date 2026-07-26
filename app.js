@@ -463,6 +463,8 @@
     animId = requestAnimationFrame(boucleAnimation);
   }
 
+  let visaAutoOpenTimeout = null;
+
   function lancerCelebration() {
     elCelebration.classList.remove("hidden");
     redimensionnerCanvas();
@@ -472,13 +474,21 @@
     ctx2d.fillRect(0, 0, canvas.width, canvas.height);
     if (animId) cancelAnimationFrame(animId);
     animId = requestAnimationFrame(boucleAnimation);
-    ouvrirVisa();
+    if (visaAutoOpenTimeout) clearTimeout(visaAutoOpenTimeout);
+    visaAutoOpenTimeout = setTimeout(() => {
+      visaAutoOpenTimeout = null;
+      ouvrirVisa();
+    }, 2200);
   }
 
   function arreterCelebration() {
     elCelebration.classList.add("hidden");
     if (animId) cancelAnimationFrame(animId);
     animId = null;
+    if (visaAutoOpenTimeout) {
+      clearTimeout(visaAutoOpenTimeout);
+      visaAutoOpenTimeout = null;
+    }
   }
 
   btnFermerCelebration.addEventListener("click", arreterCelebration);
