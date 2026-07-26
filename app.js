@@ -474,6 +474,7 @@
     ctx2d.fillRect(0, 0, canvas.width, canvas.height);
     if (animId) cancelAnimationFrame(animId);
     animId = requestAnimationFrame(boucleAnimation);
+    ouvrirVisa();
   }
 
   function arreterCelebration() {
