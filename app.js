@@ -398,7 +398,11 @@
 
   // ---------- Réinitialisation ----------
   btnReset.addEventListener("click", () => {
-    const ok = confirm("Réinitialiser complètement ton passeport (défis, notes et photos) ?");
+    const n = compterDone();
+    const message = n > 0 && n < DEFIS.length
+      ? `Tu as déjà relevé ${n}/${DEFIS.length} défis. Réinitialiser va TOUT effacer (défis, notes, photos) et remettre ton passeport à zéro. Continuer ?`
+      : "Réinitialiser complètement ton passeport (défis, notes et photos) ?";
+    const ok = confirm(message);
     if (!ok) return;
     localStorage.removeItem(STORAGE_KEY);
     location.reload();
