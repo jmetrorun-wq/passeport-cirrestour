@@ -141,7 +141,7 @@ window.CIRRESTOUR_ouvrirDemandeValidation = function (defiId, defiTitre) {
     btn.className = "validation-picker-item";
     btn.textContent = p.prenom;
     btn.addEventListener("click", () => {
-      envoyerDemandes(defiEnCoursPourPicker.id, defiEnCoursPourPicker.titre, [p]);
+      envoyerDemandes(defiEnCoursPourPicker.id, defiEnCoursPourPicker.titre, [p], true);
       elPicker.classList.add("hidden");
     });
     listePicker.appendChild(btn);
@@ -164,13 +164,18 @@ function envoyerDemandeGroupee(defiId, defiTitre, validateursAutorises) {
 
 // Crée une demande Firestore par destinataire, et suit le groupe comme une seule
 // entrée en attente (premier·e à répondre "validee" l'emporte pour les autres).
-async function envoyerDemandes(defiId, defiTitre, destinataires) {
+// `inclureNote` : uniquement pour la validation ouverte (ex. "compliment"), où le/la
+// validateur·rice est choisi·e au hasard dans la liste et ne connaît pas forcément le
+// contexte — contrairement aux référent·e·s fixes (Manu/Chnick), qui n'en ont pas besoin.
+async function envoyerDemandes(defiId, defiTitre, destinataires, inclureNote) {
   try {
     await authReady;
     const etat = lireEtat();
     const dePrenom = etat.prenom || "Quelqu'un";
-    const photoOriginale = etat.defis && etat.defis[defiId] && etat.defis[defiId].photo;
+    const defiEnCours = etat.defis && etat.defis[defiId];
+    const photoOriginale = defiEnCours && defiEnCours.photo;
     const photo = photoOriginale ? await redimensionnerDataUrl(photoOriginale, 500, 0.5) : null;
+    const note = inclureNote && defiEnCours && defiEnCours.note ? defiEnCours.note : null;
     const demandeIds = [];
     for (const participant of destinataires) {
       const contenu = {
@@ -184,6 +189,7 @@ async function envoyerDemandes(defiId, defiTitre, destinataires) {
         createdAt: serverTimestamp()
       };
       if (photo) contenu.photo = photo;
+      if (note) contenu.note = note;
       const docRef = await addDoc(collection(db, "demandes_validation"), contenu);
       demandeIds.push(docRef.id);
     }
@@ -238,6 +244,7 @@ authReady.then((user) => {
 // ---------- Écoute des demandes reçues (à approuver) ----------
 const elBanniere = document.getElementById("validation-banniere");
 const banniereTexte = document.getElementById("validation-banniere-texte");
+const banniereNote = document.getElementById("validation-banniere-note");
 const bannierePhoto = document.getElementById("validation-banniere-photo");
 const btnBanniereOui = document.getElementById("btn-validation-oui");
 const btnBanniereNon = document.getElementById("btn-validation-non");
@@ -266,6 +273,13 @@ function afficherProchaineDemande() {
   if (demandeEnCoursAffichee && fileDemandesRecues.some((d) => d.id === demandeEnCoursAffichee.id)) return;
   demandeEnCoursAffichee = fileDemandesRecues[0];
   banniereTexte.textContent = `${demandeEnCoursAffichee.dePrenom} confirme : « ${demandeEnCoursAffichee.defiTitre} » — tu valides ?`;
+  if (demandeEnCoursAffichee.note) {
+    banniereNote.textContent = `« ${demandeEnCoursAffichee.note} »`;
+    banniereNote.classList.remove("hidden");
+  } else {
+    banniereNote.classList.add("hidden");
+    banniereNote.textContent = "";
+  }
   if (demandeEnCoursAffichee.photo) {
     bannierePhoto.src = demandeEnCoursAffichee.photo;
     bannierePhoto.classList.remove("hidden");
