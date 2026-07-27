@@ -140,6 +140,7 @@
   const btnTelechargerVisa = document.getElementById("btn-telecharger-visa");
   const visaModal = document.getElementById("visa-modal");
   const visaImage = document.getElementById("visa-image");
+  const visaPreview = document.getElementById("visa-preview");
 
   let photoDefiIdEnCours = null;
 
@@ -472,6 +473,18 @@
     ctx2d.fillRect(0, 0, canvas.width, canvas.height);
     if (animId) cancelAnimationFrame(animId);
     animId = requestAnimationFrame(boucleAnimation);
+    afficherApercuVisa();
+  }
+
+  async function afficherApercuVisa() {
+    try {
+      const img = await chargerVisaTemplate();
+      const dataUrl = genererVisaDataUrl(img, state.prenom || "Cirres'Touriste");
+      visaPreview.src = dataUrl;
+      visaPreview.classList.remove("hidden");
+    } catch (e) {
+      // Best-effort : l'écran de célébration reste utilisable sans l'aperçu.
+    }
   }
 
   function arreterCelebration() {
@@ -550,6 +563,7 @@
   }
 
   btnTelechargerVisa.addEventListener("click", ouvrirVisa);
+  visaPreview.addEventListener("click", ouvrirVisa);
   visaModal.addEventListener("click", (e) => {
     if (e.target === visaModal) visaModal.classList.add("hidden");
   });

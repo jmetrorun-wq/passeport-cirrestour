@@ -405,7 +405,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 #fireworks-canvas {
@@ -422,6 +422,17 @@ button {
   color: #fff;
   padding: 24px;
   max-width: 360px;
+  margin: auto 0;
+}
+
+.visa-preview {
+  width: 150px;
+  border-radius: 8px;
+  border: 2px solid #e4dfc8;
+  box-shadow: 0 6px 16px var(--ombre);
+  display: block;
+  margin: 4px auto 20px;
+  cursor: pointer;
 }
 
 .celebration-content h1 {
