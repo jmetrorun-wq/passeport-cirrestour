@@ -26,6 +26,8 @@ if (estOrganisateur) {
   let abonne = false;
   let dernierParticipants = [];
   let totalDefis = TOTAL_DEFIS_PAR_DEFAUT;
+  let defisListe = (window.CIRRESTOUR_DEFIS_DEFAUT || []).slice();
+  const deplies = new Set(); // ids des participants dont le détail est ouvert, préservé entre les re-rendus
 
   btnToggle.addEventListener("click", () => {
     document.querySelectorAll(".screen").forEach((s) => s.classList.add("hidden"));
@@ -98,6 +100,7 @@ if (estOrganisateur) {
       onSnapshot(doc(db, "config", "defis"), (snap) => {
         if (snap.exists() && Array.isArray(snap.data().liste) && snap.data().liste.length) {
           totalDefis = snap.data().liste.length;
+          defisListe = snap.data().liste;
         }
         rendre(dernierParticipants);
       });
@@ -122,6 +125,11 @@ if (estOrganisateur) {
     return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
 
+  function defisRestants(p) {
+    const faits = p.defis || {};
+    return defisListe.filter((d) => !faits[d.id]);
+  }
+
   function rendre(participants) {
     participants.sort((a, b) => compte(b) - compte(a));
     dernierParticipants = participants;
@@ -129,18 +137,31 @@ if (estOrganisateur) {
     participants.forEach((p) => {
       const n = compte(p);
       const pct = totalDefis ? Math.round((n / totalDefis) * 100) : 0;
+      const ouvert = deplies.has(p.id);
+      const restants = defisRestants(p);
       const li = document.createElement("li");
       li.className = "dashboard-carte" + (totalDefis > 0 && n === totalDefis ? " complet" : "");
       li.innerHTML = `
         <div class="dashboard-ligne">
           <span class="dashboard-nom">${escapeHtml(p.prenom || "(sans nom)")}</span>
           <span class="dashboard-droite">
-            <span class="dashboard-score">${n} / ${totalDefis}</span>
             <button class="dashboard-suppr" title="Supprimer ce participant">🗑️</button>
           </span>
         </div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>`;
-      li.querySelector(".dashboard-suppr").addEventListener("click", async () => {
+        <button class="dashboard-avancement" aria-expanded="${ouvert}">
+          <span class="dashboard-score">${n} / ${totalDefis}</span>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <span class="dashboard-chevron">${ouvert ? "▲" : "▼"}</span>
+        </button>
+        <ul class="dashboard-restants${ouvert ? "" : " hidden"}">
+          ${
+            n === totalDefis
+              ? `<li class="dashboard-restant-vide">🎉 Tous les défis sont terminés !</li>`
+              : restants.map((d) => `<li>${escapeHtml(d.icone || "•")} ${escapeHtml(d.titre)}</li>`).join("")
+          }
+        </ul>`;
+      li.querySelector(".dashboard-suppr").addEventListener("click", async (e) => {
+        e.stopPropagation();
         const ok = confirm(`Supprimer "${p.prenom || "(sans nom)"}" de Firestore ? (n'efface pas son passeport local sur son téléphone, utile pour retirer un doublon)`);
         if (!ok) return;
         try {
@@ -148,6 +169,10 @@ if (estOrganisateur) {
         } catch (err) {
           alert("Échec de la suppression (vérifie ta connexion et les Security Rules Firestore).");
         }
+      });
+      li.querySelector(".dashboard-avancement").addEventListener("click", () => {
+        if (deplies.has(p.id)) deplies.delete(p.id); else deplies.add(p.id);
+        rendre(dernierParticipants);
       });
       listeDashboard.appendChild(li);
     });

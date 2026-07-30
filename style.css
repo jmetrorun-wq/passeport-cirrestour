@@ -561,6 +561,48 @@ button {
   opacity: 0.6;
 }
 
+.dashboard-avancement {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dashboard-avancement .dashboard-score {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.dashboard-chevron {
+  display: block;
+  text-align: center;
+  font-size: 0.7rem;
+  opacity: 0.5;
+  margin-top: 6px;
+}
+
+.dashboard-restants {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--ombre);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.88rem;
+}
+
+.dashboard-restants.hidden {
+  display: none;
+}
+
+.dashboard-restant-vide {
+  opacity: 0.7;
+}
+
 /* ---------- Éditeur de défis organisateur ---------- */
 #defis-editor {
   max-width: 480px;
